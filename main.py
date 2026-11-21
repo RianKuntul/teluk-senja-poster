@@ -216,21 +216,24 @@ def main():
     poly([(716, 528), (718, 498), (732, 498), (734, 528)], (20, 20, 36))
     disc(725, 512, 26, (255, 214, 130), soft=24)
     disc(725, 512, 7, (255, 240, 200))
-    # the beam, sweeping left across the dusk
+    # the beam, sweeping left across the dusk: a bright core cone over a
+    # wide, soft halo cone so the sweep reads clearly against the sky
     beam = [(725, 512), (238, 428), (262, 470)]
-    ys = [p[1] for p in beam]
-    for y in range(int(min(ys)), int(max(ys)) + 1):
-        xs = []
-        for i in range(3):
-            x1, y1 = beam[i]
-            x2, y2 = beam[(i + 1) % 3]
-            if (y1 <= y < y2) or (y2 <= y < y1):
-                xs.append(x1 + (y - y1) / (y2 - y1) * (x2 - x1))
-        xs.sort()
-        for k in range(0, len(xs) - 1, 2):
-            for x in range(int(xs[k]), int(xs[k + 1]) + 1):
-                d = abs(x - 725) / 500.0
-                blend(x, y, 255, 226, 150, max(0.0, 0.30 * (1 - d)))
+    beam_halo = [(725, 512), (214, 404), (286, 494)]
+    for tri, peak, spread in ((beam_halo, 0.12, 520.0), (beam, 0.42, 500.0)):
+        ys = [p[1] for p in tri]
+        for y in range(int(min(ys)), int(max(ys)) + 1):
+            xs = []
+            for i in range(3):
+                x1, y1 = tri[i]
+                x2, y2 = tri[(i + 1) % 3]
+                if (y1 <= y < y2) or (y2 <= y < y1):
+                    xs.append(x1 + (y - y1) / (y2 - y1) * (x2 - x1))
+            xs.sort()
+            for k in range(0, len(xs) - 1, 2):
+                for x in range(int(xs[k]), int(xs[k + 1]) + 1):
+                    d = abs(x - 725) / spread
+                    blend(x, y, 255, 226, 150, max(0.0, peak * (1 - d)))
 
     # foreground shore silhouettes
     poly([(0, H), (0, 946), (120, 922), (268, 940), (330, H)], (8, 12, 24))
@@ -264,8 +267,6 @@ def main():
     # a slender rule and diamond beneath the name
     line(362, 316, 486, 316, CREAM, 3)
     line(538, 316, 662, 316, CREAM, 3)
-    for dx, dy in ((0, -9), (9, 0), (0, 9), (-9, 0)):
-        pass
     poly([(512, 305), (523, 316), (512, 327), (501, 316)], CREAM)
 
     # double frame
